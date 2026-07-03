@@ -11,23 +11,37 @@
     background: #0a0a0a; color: #fff; font-family: "Jost", sans-serif;
     min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
   }
-  .box { max-width: 560px; text-align: center; }
+  .box { max-width: 620px; text-align: center; }
   h1 { font-size: 44px; font-weight: 900; text-transform: uppercase; line-height: 1.1; margin-bottom: 16px; }
   h1 span { background: #f8d602; color: #0a0a0a; padding: 0 10px; display: inline-block; transform: rotate(-1deg); }
   p { font-size: 18px; font-family: "Lora", serif; font-style: italic; color: #c8c8c8; margin-bottom: 26px; }
-  a {
+  a.btn {
     display: inline-block; background: #f8d602; color: #0a0a0a; text-decoration: none;
     font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; padding: 12px 28px;
     border: 3px solid #f8d602;
   }
-  a:hover { background: #ff3a0d; border-color: #ff3a0d; color: #fff; }
+  a.btn:hover { background: #ff3a0d; border-color: #ff3a0d; color: #fff; }
+  .gdpr {
+    margin-top: 44px; padding: 22px 26px; text-align: left;
+    border-left: 4px solid #f8d602; background: rgba(255,255,255,0.04);
+  }
+  .gdpr h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; color: #f8d602; margin-bottom: 10px; }
+  .gdpr p { font-size: 14.5px; font-style: normal; line-height: 1.65; margin-bottom: 8px; color: #c8c8c8; }
+  .gdpr p:last-child { margin-bottom: 0; }
+  .gdpr a { color: #f8d602; font-weight: 700; }
 </style>
 </head>
 <body>
   <div class="box">
     <h1>You're <span>in</span></h1>
     <p>Thanks for signing up. We'll be in touch about organising in your area.</p>
-    <a href="/">Back to the monitor</a>
+    <a class="btn" href="/">Back to the monitor</a>
+    <div class="gdpr">
+      <h2>Your details — what happens now</h2>
+      <p>You've given us your first name, email and postcode. They're held by <strong>Athrach Ltd</strong> (company no. 16906800) and used for one thing only: connecting you with people organising against Reform UK where you live. They're stored securely, never sold or shared with anyone, and we won't add you to any other list.</p>
+      <p>Because signing up reflects a political view, the law gives your details extra protection — and you extra rights. You can withdraw your consent, see what we hold, or have it deleted at any time: email <a href="mailto:brian.whelan.journalism@gmail.com">brian.whelan.journalism@gmail.com</a> or reply "unsubscribe" to anything we send.</p>
+      <p>The full detail is in our <a href="/privacy.html">privacy notice</a>. If you're ever unhappy with how we handle your data, you can complain to the ICO at <a href="https://ico.org.uk" target="_blank">ico.org.uk</a>.</p>
+    </div>
   </div>
 </body>
 </html>

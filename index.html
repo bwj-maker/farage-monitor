@@ -357,7 +357,7 @@
         <button type="submit">Count me in</button>
       </div>
     </form>
-    <p class="signup-privacy">We'll only use your details to put you in touch with local organising — nothing else, never shared or sold, and you can unsubscribe at any time.</p>
+    <p class="signup-privacy">By signing up you consent to Athrach Ltd contacting you about local organising — nothing else, never shared or sold, unsubscribe at any time. Full details in our <a href="/privacy.html" style="color:inherit;font-weight:700">privacy notice</a>.</p>
   </div>
 </div>
 
@@ -456,7 +456,7 @@ function render() {
   const byPayer = {};
   for (const p of monetary) byPayer[p.payer] = (byPayer[p.payer] || 0) + p.value;
   const top = Object.entries(byPayer).sort((a, b) => b[1] - a[1]);
-  const mpSalary = 93904; // annual MP salary from Apr 2025
+  const mpSalary = 98599; // annual MP salary from Apr 2026 (IPSA)
 
   document.getElementById("stats").innerHTML = `
     <div class="stat"><div class="k">Payments declared</div><div class="v">${pays.length}</div></div>
