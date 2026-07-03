@@ -231,36 +231,6 @@
 
   .empty { color: var(--grey); font-size: 14px; padding: 12px 0; font-family: "Lora", serif; font-style: italic; }
 
-  /* ── signup ── */
-  .signup {
-    background: var(--gold); border: 3px solid var(--black);
-    box-shadow: 8px 8px 0 var(--black);
-    padding: 30px 32px 24px; margin-top: 44px;
-  }
-  .signup-head {
-    font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.15;
-    margin-bottom: 8px;
-  }
-  .signup-head span { background: var(--black); color: var(--gold); padding: 0 10px; display: inline-block; transform: rotate(-1deg); }
-  .signup-sub { font-size: 17px; font-family: "Lora", serif; margin-bottom: 18px; }
-  .signup-fields { display: flex; gap: 12px; flex-wrap: wrap; }
-  .signup-fields input {
-    background: var(--white); border: 3px solid var(--black); color: var(--black);
-    font-family: "Jost", sans-serif; font-size: 17px; font-weight: 600;
-    padding: 12px 14px; border-radius: 0; flex: 1 1 180px; min-width: 160px;
-  }
-  .signup-fields input:focus { outline: 3px solid var(--crimson); }
-  .signup-fields input::placeholder { color: #8b949e; font-weight: 500; }
-  .signup-fields button {
-    background: var(--black); color: var(--gold); border: 3px solid var(--black);
-    font-family: "Jost", sans-serif; font-size: 17px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1.5px; padding: 12px 30px;
-    cursor: pointer; border-radius: 0; flex: 0 0 auto; transition: all 0.15s;
-  }
-  .signup-fields button:hover { background: var(--crimson); border-color: var(--crimson); color: var(--white); }
-  .signup-privacy { font-size: 12.5px; margin-top: 14px; font-family: "Lora", serif; font-style: italic; }
-  @media (max-width: 600px) { .signup-head { font-size: 22px; } }
-
   footer {
     margin-top: 50px; background: var(--black); color: #c8c8c8;
   }
@@ -344,21 +314,6 @@
   <div class="section-title"><span>Overseas visits funded by third parties</span></div>
   <div class="cards" id="visits"></div>
 
-  <div class="signup">
-    <div class="signup-head">Want to <span>stop Reform</span> in your area?</div>
-    <p class="signup-sub">Leave your details and we'll connect you with people organising where you live.</p>
-    <form name="stop-reform" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field">
-      <input type="hidden" name="form-name" value="stop-reform">
-      <p style="display:none"><label>Don't fill this in: <input name="bot-field"></label></p>
-      <div class="signup-fields">
-        <input type="text" name="name" placeholder="First name" required autocomplete="given-name">
-        <input type="email" name="email" placeholder="Email address" required autocomplete="email">
-        <input type="text" name="postcode" placeholder="Postcode" required autocomplete="postal-code">
-        <button type="submit">Count me in</button>
-      </div>
-    </form>
-    <p class="signup-privacy">By signing up you consent to Athrach Ltd contacting you about local organising — nothing else, never shared or sold, unsubscribe at any time. Full details in our <a href="/privacy.html" style="color:inherit;font-weight:700">privacy notice</a>.</p>
-  </div>
 </div>
 
 <footer>
