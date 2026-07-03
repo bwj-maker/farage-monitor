@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farage Money Monitor — Declared Earnings</title>
+<meta name="description" content="A live monitor of Nigel Farage MP's declared outside earnings, from the official Register of Members' Financial Interests.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Lora:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --gold: #f8d602;
+    --gold-glow: rgba(248, 214, 2, 0.3);
+    --crimson: #ff3a0d;
+    --smoke: #f6f4f2;
+    --white: #ffffff;
+    --grey: #5d6c7b;
+    --line: #0a0a0a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--smoke);
+    color: var(--black);
+    font-family: "Jost", -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px 70px; }
+
+  /* ── top band ── */
+  .band {
+    background: var(--black); color: var(--white);
+  }
+  .band-inner { max-width: 1100px; margin: 0 auto; padding: 26px 20px 30px; display: flex; align-items: center; gap: 20px; }
+  .band img {
+    width: 74px; height: 74px; border-radius: 50%; object-fit: cover;
+    border: 3px solid var(--gold); background: #222;
+  }
+  .band h1 {
+    font-size: 34px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.05;
+  }
+  .band h1 .hl { background: var(--gold); color: var(--black); padding: 0 8px; display: inline-block; transform: rotate(-1deg); }
+  .band .sub { font-size: 14px; color: #c8c8c8; margin-top: 7px; font-weight: 400; }
+  .band .sub a { color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--gold); }
+  .updated { margin-left: auto; text-align: right; font-size: 12px; color: #8b949e; line-height: 1.5; }
+
+  /* ── year tabs ── */
+  .years { display: flex; gap: 10px; margin: 26px 0 22px; flex-wrap: wrap; }
+  .years button {
+    background: var(--white); border: 2px solid var(--black); color: var(--black);
+    padding: 8px 22px; font-size: 15px; font-weight: 700; cursor: pointer;
+    font-family: "Jost", sans-serif; text-transform: uppercase; letter-spacing: 1px;
+    transition: all 0.15s; border-radius: 0;
+  }
+  .years button:hover { background: var(--gold); box-shadow: 0 8px 16px var(--gold-glow); }
+  .years button.active { background: var(--black); color: var(--gold); }
+
+  /* ── hero ── */
+  .hero {
+    background: var(--white); border: 3px solid var(--black);
+    box-shadow: 8px 8px 0 var(--gold);
+    padding: 34px 36px 30px; margin-bottom: 26px;
+  }
+  .hero .label {
+    display: inline-block; background: var(--black); color: var(--white);
+    font-size: 13px; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700;
+    padding: 4px 12px;
+  }
+  .hero .big {
+    font-size: 76px; font-weight: 900; letter-spacing: -1px; line-height: 1.1; margin: 14px 0 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero .big mark {
+    background: linear-gradient(transparent 8%, var(--gold) 8%, var(--gold) 92%, transparent 92%);
+    color: var(--black); padding: 0 10px;
+  }
+  .hero .note { color: var(--grey); font-size: 15px; font-family: "Lora", serif; font-style: italic; max-width: 640px; }
+  .hero .tickline {
+    font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+    margin: 2px 0 10px; color: var(--black);
+  }
+  .hero .tickline strong { color: var(--crimson); font-variant-numeric: tabular-nums; }
+  .hero .tickline::before {
+    content: "●"; color: var(--crimson); margin-right: 7px;
+    animation: blink 1.2s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.15; } }
+
+  /* ── salary calculator ── */
+  .calc {
+    background: var(--black); color: var(--white);
+    padding: 26px 30px 22px; margin-bottom: 26px;
+    box-shadow: 8px 8px 0 var(--crimson);
+  }
+  .calc-head {
+    font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
+  }
+  .calc-head span { background: var(--gold); color: var(--black); padding: 0 8px; display: inline-block; transform: rotate(-1deg); }
+  .calc-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .calc-label { font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .calc-currency { font-size: 26px; font-weight: 800; color: var(--gold); margin-right: -4px; }
+  .calc input {
+    background: var(--white); border: 3px solid var(--gold); color: var(--black);
+    font-family: "Jost", sans-serif; font-size: 24px; font-weight: 800; width: 160px;
+    padding: 8px 12px; border-radius: 0; font-variant-numeric: tabular-nums;
+  }
+  .calc input:focus { outline: 3px solid var(--crimson); }
+  .calc select {
+    background: var(--gold); border: 3px solid var(--gold); color: var(--black);
+    font-family: "Jost", sans-serif; font-size: 17px; font-weight: 700;
+    padding: 11px 10px; border-radius: 0; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .calc-result { font-size: 21px; line-height: 1.55; max-width: 820px; }
+  .calc-result .big-em { background: var(--gold); color: var(--black); font-weight: 800; padding: 0 7px; }
+  .calc-result .red-em { background: var(--crimson); color: var(--white); font-weight: 800; padding: 0 7px; }
+  .calc-foot { font-size: 13px; color: #aaadb0; margin-top: 14px; font-family: "Lora", serif; font-style: italic; }
+
+  /* ── not on the register ── */
+  .notbox {
+    background: var(--white); border: 3px solid var(--crimson);
+    box-shadow: 8px 8px 0 var(--crimson);
+    padding: 24px 28px; margin-top: 36px;
+  }
+  .notbox-head {
+    display: inline-block; background: var(--crimson); color: var(--white);
+    font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+    padding: 4px 12px; margin-bottom: 14px;
+  }
+  .notbox p { font-size: 15px; line-height: 1.65; margin-bottom: 10px; font-family: "Lora", serif; }
+  .notbox p:last-child { margin-bottom: 0; }
+  .notbox a { color: var(--crimson); font-weight: 700; }
+
+  .agreements {
+    margin-top: 16px; padding-top: 13px; border-top: 2px dashed #c8c8c8;
+    font-size: 13.5px; color: var(--grey); font-family: "Lora", serif; line-height: 1.55;
+  }
+  .agreements strong { color: var(--black); font-family: "Jost", sans-serif; }
+
+  /* ── stats ── */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 26px; }
+  .stat {
+    background: var(--white); border: 2px solid var(--black); padding: 16px 18px 14px;
+    transition: all 0.15s;
+  }
+  .stat:hover { background: var(--gold); box-shadow: 0 12px 18px var(--gold-glow); }
+  .stat .k { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; color: var(--grey); }
+  .stat:hover .k { color: var(--black); }
+  .stat .v { font-size: 26px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .stat .v small { font-size: 13px; color: var(--grey); font-weight: 500; }
+  .stat:hover .v small { color: var(--black); }
+  .stat.hot .v { color: var(--crimson); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 26px; }
+  @media (max-width: 820px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .hero .big { font-size: 44px; }
+    .band h1 { font-size: 24px; }
+    .updated { display: none; }
+  }
+
+  .panel { background: var(--white); border: 2px solid var(--black); padding: 22px 24px; overflow-x: auto; }
+  .panel h2 {
+    font-size: 17px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800;
+    margin-bottom: 18px; padding-bottom: 8px; border-bottom: 3px solid var(--gold);
+    display: inline-block;
+  }
+
+  /* ── payer bars ── */
+  .payer-row { margin-bottom: 15px; }
+  .payer-row .top { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 5px; align-items: baseline; }
+  .payer-row .name { font-weight: 700; }
+  .payer-row .amt { font-variant-numeric: tabular-nums; font-weight: 800; }
+  .payer-row .pct { color: var(--grey); font-weight: 500; margin-left: 7px; font-size: 12.5px; }
+  .payer-row .bar { height: 16px; background: var(--smoke); border: 1.5px solid var(--black); }
+  .payer-row .fill { height: 100%; background: var(--gold); border-right: 1.5px solid var(--black); transition: width 0.5s ease; }
+  .payer-row:first-child .fill { background: var(--crimson); }
+  .payer-row:first-child .amt { color: var(--crimson); }
+
+  /* ── monthly chart ── */
+  .months { display: flex; align-items: flex-end; gap: 7px; height: 170px; padding-top: 12px; }
+  .month { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+  .month .mbar {
+    width: 100%; background: var(--gold); border: 1.5px solid var(--black); border-bottom: none;
+    min-height: 3px; position: relative; transition: height 0.5s ease;
+  }
+  .month .mbar.zero { border: none; background: #ddd; }
+  .month .mbar:hover { background: var(--crimson); }
+  .month .mbar:hover::after {
+    content: attr(data-amt); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    background: var(--black); color: var(--gold); padding: 3px 9px; font-size: 12px; font-weight: 700;
+    white-space: nowrap; margin-bottom: 5px; z-index: 5;
+  }
+  .month .ml { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--grey); }
+  .months-baseline { border-top: 2.5px solid var(--black); margin-top: -1px; }
+
+  /* ── table ── */
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 560px; }
+  th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
+    padding: 9px 10px; background: var(--black); color: var(--white); font-weight: 700;
+  }
+  td { padding: 12px 10px; border-bottom: 1.5px solid #e2ded8; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #fdf8dc; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td .role { color: var(--grey); font-size: 12.5px; display: block; margin-top: 1px; }
+  td.money { font-weight: 800; }
+  .inkind {
+    color: var(--white); background: var(--crimson); font-size: 10px; font-weight: 700;
+    padding: 2px 6px; margin-left: 7px; vertical-align: middle; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  /* ── secondary sections ── */
+  .section-title {
+    font-size: 21px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;
+    margin: 36px 0 16px;
+  }
+  .section-title span { background: var(--gold); padding: 1px 10px; display: inline-block; transform: rotate(-0.7deg); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--white); border-left: 4px solid var(--gold); border-bottom: 4px solid var(--gold);
+    border-top: 1.5px solid #e2ded8; border-right: 1.5px solid #e2ded8;
+    padding: 16px 18px; font-size: 14px;
+  }
+  .card .head { display: flex; justify-content: space-between; margin-bottom: 6px; gap: 10px; }
+  .card .from { font-weight: 800; font-size: 15px; }
+  .card .val { color: var(--crimson); font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .card .desc { color: var(--grey); line-height: 1.5; font-family: "Lora", serif; font-size: 13.5px; }
+  .card .when { color: var(--grey); font-size: 12px; margin-top: 9px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+
+  .empty { color: var(--grey); font-size: 14px; padding: 12px 0; font-family: "Lora", serif; font-style: italic; }
+
+  /* ── signup ── */
+  .signup {
+    background: var(--gold); border: 3px solid var(--black);
+    box-shadow: 8px 8px 0 var(--black);
+    padding: 30px 32px 24px; margin-top: 44px;
+  }
+  .signup-head {
+    font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .signup-head span { background: var(--black); color: var(--gold); padding: 0 10px; display: inline-block; transform: rotate(-1deg); }
+  .signup-sub { font-size: 17px; font-family: "Lora", serif; margin-bottom: 18px; }
+  .signup-fields { display: flex; gap: 12px; flex-wrap: wrap; }
+  .signup-fields input {
+    background: var(--white); border: 3px solid var(--black); color: var(--black);
+    font-family: "Jost", sans-serif; font-size: 17px; font-weight: 600;
+    padding: 12px 14px; border-radius: 0; flex: 1 1 180px; min-width: 160px;
+  }
+  .signup-fields input:focus { outline: 3px solid var(--crimson); }
+  .signup-fields input::placeholder { color: #8b949e; font-weight: 500; }
+  .signup-fields button {
+    background: var(--black); color: var(--gold); border: 3px solid var(--black);
+    font-family: "Jost", sans-serif; font-size: 17px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1.5px; padding: 12px 30px;
+    cursor: pointer; border-radius: 0; flex: 0 0 auto; transition: all 0.15s;
+  }
+  .signup-fields button:hover { background: var(--crimson); border-color: var(--crimson); color: var(--white); }
+  .signup-privacy { font-size: 12.5px; margin-top: 14px; font-family: "Lora", serif; font-style: italic; }
+  @media (max-width: 600px) { .signup-head { font-size: 22px; } }
+
+  footer {
+    margin-top: 50px; background: var(--black); color: #c8c8c8;
+  }
+  footer .foot-inner { max-width: 1100px; margin: 0 auto; padding: 26px 20px; font-size: 13px; line-height: 1.7; }
+  footer a { color: var(--gold); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="band">
+  <div class="band-inner">
+    <img src="https://members-api.parliament.uk/api/Members/5091/Thumbnail" alt="Nigel Farage">
+    <div>
+      <h1>Farage <span class="hl">Money</span> Monitor</h1>
+      <div class="sub">The declared outside earnings of Nigel Farage MP · Reform UK, Clacton · Source: <a href="https://members.parliament.uk/member/5091/registeredinterests" target="_blank">Register of Members' Financial Interests</a></div>
+    </div>
+    <div class="updated" id="updated"></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="years" id="years"></div>
+
+  <div class="hero">
+    <div class="label" id="heroLabel">Declared earnings</div>
+    <div class="big"><mark id="total">—</mark></div>
+    <div class="tickline" id="tickline" style="display:none">
+      LIVE at his declared pace: <strong id="perHour"></strong>/hour · <strong id="perDay"></strong>/day ·
+      <strong id="sincePage">£0.00</strong> since you opened this page
+    </div>
+    <div class="note" id="heroNote">Employment and earnings declared to Parliament, on top of his MP salary. Figures exactly as registered; the headline counts monetary payments only.</div>
+  </div>
+
+  <div class="calc">
+    <div class="calc-head">How long would <span>you</span> need to earn that?</div>
+    <div class="calc-controls">
+      <span class="calc-label">I earn</span>
+      <span class="calc-currency">£</span><input type="text" id="calcAmount" value="37,430" inputmode="decimal">
+      <select id="calcUnit">
+        <option value="year" selected>a year</option>
+        <option value="month">a month</option>
+        <option value="hour">an hour</option>
+      </select>
+    </div>
+    <div class="calc-result" id="calcResult"></div>
+    <div class="calc-foot">Default is the UK median full-time salary. Assumes a 37.5-hour week — Farage declared <span id="calcHisHours"></span> hours for the money above.</div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Where the money comes from</h2>
+      <div id="payers"></div>
+      <div class="agreements" id="agreements" style="display:none"></div>
+    </div>
+    <div class="panel">
+      <h2>Payments by month</h2>
+      <div class="months" id="months"></div>
+      <div class="months-baseline"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Every declared payment</h2>
+    <table>
+      <thead><tr><th>Date</th><th>Payer</th><th>Details</th><th class="num">Hours</th><th class="num">£/hr</th><th class="num">Amount</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="notbox">
+    <div class="notbox-head">Not on the register</div>
+    <p>A reported <strong>£5 million gift from crypto billionaire Christopher Harborne</strong> does not appear in Farage's register of interests — and is therefore <strong>not included in any total on this page</strong>. First reported by The Guardian in April 2026, the payment is the subject of an ongoing <a href="https://www.itv.com/news/2026-05-20/why-is-nigel-farage-in-trouble-over-5-million" target="_blank">investigation by the Parliamentary Commissioner for Standards</a> into whether it should have been declared. Farage says he was under no obligation to register it because it was given before he became an MP. The register does record Harborne separately funding a £25,000 flight to the Maldives in February 2026 (see visits below).</p>
+    <p>Shareholdings — including Farage's stakes in Stack BTC PLC, Farage Media Ltd and Thorn In The Side Ltd — carry <strong>no published value</strong> in the register, so they are not counted here either.</p>
+  </div>
+
+  <div class="section-title"><span>Gifts, benefits &amp; hospitality</span></div>
+  <div class="cards" id="gifts"></div>
+
+  <div class="section-title"><span>Overseas visits funded by third parties</span></div>
+  <div class="cards" id="visits"></div>
+
+  <div class="signup">
+    <div class="signup-head">Want to <span>stop Reform</span> in your area?</div>
+    <p class="signup-sub">Leave your details and we'll connect you with people organising where you live.</p>
+    <form name="stop-reform" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="stop-reform">
+      <p style="display:none"><label>Don't fill this in: <input name="bot-field"></label></p>
+      <div class="signup-fields">
+        <input type="text" name="name" placeholder="First name" required autocomplete="given-name">
+        <input type="email" name="email" placeholder="Email address" required autocomplete="email">
+        <input type="text" name="postcode" placeholder="Postcode" required autocomplete="postal-code">
+        <button type="submit">Count me in</button>
+      </div>
+    </form>
+    <p class="signup-privacy">We'll only use your details to put you in touch with local organising — nothing else, never shared or sold, and you can unsubscribe at any time.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-inner">
+    Data from the official <a href="https://interests-api.parliament.uk" target="_blank">UK Parliament Register of Members' Financial Interests API</a>.
+    The register is published fortnightly while the House is sitting; payments appear up to 28 days after receipt.
+    All figures are as declared by the member. The headline total counts monetary employment payments only — gifts, benefits in kind and funded travel are shown separately.
+  </div>
+</footer>
+
+<script>
+const gbp = v => "£" + v.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const gbp0 = v => "£" + Math.round(v).toLocaleString("en-GB");
+const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+let DATA = null;
+let year = new Date().getFullYear();
+let tickTimer = null;
+let calcState = { total: 0, hours: 0, label: "" };
+
+function inYear(item, y) { return y === "all" || item.date.startsWith(String(y)); }
+
+/* ── debt-clock ticker: extrapolates the declared total at his average pace this year ── */
+function startTicker(declared) {
+  clearInterval(tickTimer);
+  const yStart = new Date(new Date().getFullYear(), 0, 1).getTime();
+  const rate = declared / ((Date.now() - yStart) / 1000); // £ per second, declared pace
+  const openedAt = Date.now();
+  const totalEl = document.getElementById("total");
+  document.getElementById("tickline").style.display = "";
+  document.getElementById("perHour").textContent = gbp0(rate * 3600);
+  document.getElementById("perDay").textContent = gbp0(rate * 86400);
+  document.getElementById("heroNote").textContent =
+    `Declared to the register so far: ${gbp(declared)}. The live figure ticks on at his average declared pace for the year. Register entries can lag up to 28 days behind payment.`;
+  tickTimer = setInterval(() => {
+    totalEl.textContent = gbp(rate * (Date.now() - yStart) / 1000);
+    document.getElementById("sincePage").textContent = "£" + ((Date.now() - openedAt) / 1000 * rate).toFixed(2);
+  }, 100);
+}
+
+function stopTicker() {
+  clearInterval(tickTimer);
+  tickTimer = null;
+  document.getElementById("tickline").style.display = "none";
+  document.getElementById("heroNote").textContent =
+    "Employment and earnings declared to Parliament, on top of his MP salary. Figures exactly as registered; the headline counts monetary payments only.";
+}
+
+/* ── how long would YOU need ── */
+function calc() {
+  const raw = document.getElementById("calcAmount").value.replace(/[,£\s]/g, "");
+  const amt = parseFloat(raw);
+  const unit = document.getElementById("calcUnit").value;
+  const out = document.getElementById("calcResult");
+  if (!amt || amt <= 0 || !calcState.total) { out.innerHTML = "&nbsp;"; return; }
+  const annual = unit === "hour" ? amt * 37.5 * 52 : unit === "month" ? amt * 12 : amt;
+  const hourly = annual / (37.5 * 52);
+  const hoursNeeded = calcState.total / hourly;
+  const yearsNeeded = calcState.total / annual;
+  let span;
+  if (yearsNeeded >= 1) {
+    let y = Math.floor(yearsNeeded);
+    let m = Math.round((yearsNeeded - y) * 12);
+    if (m === 12) { y += 1; m = 0; }
+    span = `${y} ${y === 1 ? "year" : "years"}${m ? ` and ${m} ${m === 1 ? "month" : "months"}` : ""}`;
+  } else if (yearsNeeded * 12 >= 1) {
+    const m = Math.floor(yearsNeeded * 12);
+    const w = Math.round((yearsNeeded * 12 - m) * 4.33);
+    span = `${m} ${m === 1 ? "month" : "months"}${w ? ` and ${w} weeks` : ""}`;
+  } else {
+    span = `${Math.round(hoursNeeded).toLocaleString()} working hours`;
+  }
+  out.innerHTML = `Working full-time on that, you'd need <span class="big-em">${span}</span> — about ${Math.round(hoursNeeded).toLocaleString("en-GB")} hours on the clock — to match what Farage declared ${calcState.label}. He declared <span class="red-em">${calcState.hours.toLocaleString("en-GB")} hours of work</span> for it.`;
+}
+document.getElementById("calcAmount").addEventListener("input", calc);
+document.getElementById("calcUnit").addEventListener("change", calc);
+
+function render() {
+  if (!DATA) return;
+  const pays = DATA.payments.filter(p => inYear(p, year));
+  const monetary = pays.filter(p => p.paymentType !== "In kind");
+  const total = monetary.reduce((s, p) => s + p.value, 0);
+  const yearLabel = year === "all" ? "since election (Jul 2024)" : (year === new Date().getFullYear() ? `in ${year} so far` : `in ${year}`);
+
+  document.getElementById("heroLabel").textContent = `Declared earnings ${yearLabel}`;
+  document.getElementById("total").textContent = gbp(total);
+  if (year === new Date().getFullYear() && total > 0) startTicker(total); else stopTicker();
+
+  // stats
+  const hours = pays.reduce((s, p) => s + (p.hours || 0), 0);
+  const withHours = monetary.filter(p => p.hours);
+  const hourlyTotal = withHours.reduce((s, p) => s + p.value, 0);
+  const hourlyHours = withHours.reduce((s, p) => s + p.hours, 0);
+  const byPayer = {};
+  for (const p of monetary) byPayer[p.payer] = (byPayer[p.payer] || 0) + p.value;
+  const top = Object.entries(byPayer).sort((a, b) => b[1] - a[1]);
+  const mpSalary = 93904; // annual MP salary from Apr 2025
+
+  document.getElementById("stats").innerHTML = `
+    <div class="stat"><div class="k">Payments declared</div><div class="v">${pays.length}</div></div>
+    <div class="stat"><div class="k">Biggest source</div><div class="v" style="font-size:17px">${top[0] ? top[0][0] : "—"}<br><small>${top[0] ? gbp0(top[0][1]) : ""}</small></div></div>
+    <div class="stat"><div class="k">Hours declared</div><div class="v">${hours ? hours.toLocaleString() : "—"} <small>hrs</small></div></div>
+    <div class="stat hot"><div class="k">Average rate</div><div class="v">${hourlyHours ? gbp0(hourlyTotal / hourlyHours) : "—"} <small>/hr declared</small></div></div>
+    <div class="stat hot"><div class="k">Vs MP salary (£${(mpSalary/1000).toFixed(0)}k/yr)</div><div class="v">${(total / mpSalary).toFixed(1)}× <small>annual salary</small></div></div>
+  `;
+
+  // salary comparison calculator state
+  const monetaryHours = monetary.reduce((s, p) => s + (p.hours || 0), 0);
+  calcState = { total, hours: monetaryHours, label: yearLabel };
+  document.getElementById("calcHisHours").textContent = monetaryHours.toLocaleString("en-GB");
+  calc();
+
+  // ongoing agreements (registered as regular remuneration, not itemised payments)
+  const agEl = document.getElementById("agreements");
+  const ags = DATA.agreements || [];
+  if (ags.length) {
+    agEl.style.display = "";
+    agEl.innerHTML = "Not counted above — registered as ongoing agreements without itemised payments: " +
+      ags.map(a => `<strong>${a.payer}</strong> (${a.role.toLowerCase()}) at <strong>${gbp0(a.value)} ${a.period.toLowerCase()}</strong>${a.hours ? `, ${a.hours} hrs ${a.period.toLowerCase()}` : ""}`).join("; ") + ".";
+  } else {
+    agEl.style.display = "none";
+  }
+
+  // payer bars
+  const max = top[0] ? top[0][1] : 1;
+  document.getElementById("payers").innerHTML = top.length ? top.map(([name, amt]) => `
+    <div class="payer-row">
+      <div class="top"><span class="name">${name}</span>
+        <span class="amt">${gbp0(amt)}<span class="pct">${(amt / total * 100).toFixed(1)}%</span></span></div>
+      <div class="bar"><div class="fill" style="width:${(amt / max * 100).toFixed(1)}%"></div></div>
+    </div>`).join("") : '<div class="empty">No monetary payments declared for this period.</div>';
+
+  // monthly chart
+  const byMonth = {};
+  for (const p of monetary) {
+    const key = p.date.slice(0, 7);
+    byMonth[key] = (byMonth[key] || 0) + p.value;
+  }
+  let keys;
+  if (year === "all") {
+    keys = Object.keys(byMonth).sort();
+  } else {
+    keys = Array.from({ length: 12 }, (_, i) => `${year}-${String(i + 1).padStart(2, "0")}`);
+  }
+  const mmax = Math.max(...keys.map(k => byMonth[k] || 0), 1);
+  document.getElementById("months").innerHTML = keys.map(k => {
+    const v = byMonth[k] || 0;
+    const [yy, mm] = k.split("-");
+    const label = year === "all" ? `${MONTHS[+mm - 1]} ’${yy.slice(2)}` : MONTHS[+mm - 1];
+    return `<div class="month"><div class="mbar ${v ? "" : "zero"}" style="height:${(v / mmax * 100).toFixed(1)}%" data-amt="${gbp0(v)}"></div><div class="ml">${label}</div></div>`;
+  }).join("");
+
+  // table
+  document.getElementById("rows").innerHTML = pays.length ? pays.map(p => `
+    <tr>
+      <td style="white-space:nowrap">${fmtDate(p.date)}</td>
+      <td><strong>${p.payer}</strong>${p.paymentType === "In kind" ? '<span class="inkind">In kind</span>' : ""}<span class="role">${p.role || ""}</span></td>
+      <td style="color:var(--grey)">${p.description || ""}</td>
+      <td class="num">${p.hours ? p.hours : "—"}</td>
+      <td class="num">${p.hours && p.paymentType !== "In kind" ? gbp0(p.value / p.hours) : "—"}</td>
+      <td class="num money">${gbp(p.value)}</td>
+    </tr>`).join("") : '<tr><td colspan="6" class="empty">No payments declared for this period.</td></tr>';
+
+  // gifts
+  const gifts = DATA.gifts.filter(g => inYear(g, year));
+  document.getElementById("gifts").innerHTML = gifts.length ? gifts.map(g => `
+    <div class="card">
+      <div class="head"><span class="from">${g.donor}</span><span class="val">${g.value ? gbp0(g.value) : ""}</span></div>
+      <div class="desc">${g.description}</div>
+      <div class="when">${fmtDate(g.date)}${g.overseas ? " · overseas source" : ""}${g.donorStatus ? " · " + g.donorStatus.toLowerCase() : ""}</div>
+    </div>`).join("") : '<div class="empty">None declared for this period.</div>';
+
+  // visits
+  const visits = DATA.visits.filter(v => inYear(v, year));
+  document.getElementById("visits").innerHTML = visits.length ? visits.map(v => `
+    <div class="card">
+      <div class="head"><span class="from">${v.destination || "Overseas visit"}</span><span class="val">${v.value ? gbp0(v.value) : ""}</span></div>
+      <div class="desc">${v.purpose || ""}${v.donor && v.donor !== "Undisclosed" ? " · Funded by " + v.donor : ""}</div>
+      <div class="when">${fmtDate(v.date)} – ${fmtDate(v.endDate)}</div>
+    </div>`).join("") : '<div class="empty">None declared for this period.</div>';
+}
+
+function renderYears() {
+  const years = new Set(DATA.payments.map(p => +p.date.slice(0, 4)));
+  DATA.gifts.forEach(g => years.add(+g.date.slice(0, 4)));
+  const sorted = [...years].sort();
+  const el = document.getElementById("years");
+  el.innerHTML = sorted.map(y => `<button data-y="${y}">${y}</button>`).join("") + `<button data-y="all">All time</button>`;
+  if (!years.has(year)) year = sorted[sorted.length - 1] || "all";
+  el.querySelectorAll("button").forEach(b => {
+    if (String(b.dataset.y) === String(year)) b.classList.add("active");
+    b.onclick = () => {
+      year = b.dataset.y === "all" ? "all" : +b.dataset.y;
+      el.querySelectorAll("button").forEach(x => x.classList.toggle("active", x === b));
+      render();
+    };
+  });
+}
+
+async function load() {
+  try {
+    const res = await fetch("data.json?t=" + new Date().getTime());
+    const payload = await res.json();
+    if (!payload || !payload.fetchedAt || !payload.payments) throw new Error("no data");
+    DATA = payload;
+    document.getElementById("updated").innerHTML = `Register data fetched<br>${new Date(payload.fetchedAt).toLocaleString("en-GB")}`;
+    renderYears();
+    render();
+  } catch (e) {
+    document.getElementById("total").textContent = "Loading register…";
+    setTimeout(load, 2500);
+  }
+}
+load();
+</script>
+</body>
+</html>
